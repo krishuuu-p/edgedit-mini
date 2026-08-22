@@ -41,7 +41,6 @@ class GaussianDiffusion:
         if not 1 <= steps <= self.T:
             raise ValueError(f"steps must be in [1, {self.T}], got {steps}")
         x = torch.randn(shape, device=device)
-        # Descending, evenly spaced positions in the *trained* schedule.
         schedule = torch.linspace(self.T - 1, 0, steps, device=device).long()
         for index, step_t in enumerate(schedule):
             t = torch.full((shape[0],), step_t.item(), device=device, dtype=torch.long)
@@ -61,7 +60,6 @@ class GaussianDiffusion:
                 x = x0
             else:
                 alpha_bar_prev = self.alphas_cumprod[schedule[index + 1]]
-                # Deterministic DDIM transition (eta=0).
                 x = torch.sqrt(alpha_bar_prev) * x0 + torch.sqrt(1 - alpha_bar_prev) * eps
         return x.clamp(-1, 1)
 

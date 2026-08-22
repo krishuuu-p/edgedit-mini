@@ -19,8 +19,8 @@ class SmallCNN(nn.Module):
     def __init__(self, num_classes=10, feat_dim=64):
         super().__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),   # 14x14
-            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),  # 7x7
+            nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
             nn.Conv2d(64, feat_dim, 3, padding=1), nn.ReLU(), nn.AdaptiveAvgPool2d(1),
         )
         self.classifier = nn.Linear(feat_dim, num_classes)

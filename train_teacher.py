@@ -25,7 +25,7 @@ def main():
     ap.add_argument("--out_dir", type=str, default="./runs/teacher")
     ap.add_argument("--log_every", type=int, default=200)
     ap.add_argument("--sample_every", type=int, default=2000)
-    ap.add_argument("--sample_steps", type=int, default=100)  # DDPM steps used for preview samples (fast, lower quality)
+    ap.add_argument("--sample_steps", type=int, default=100)
     ap.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
 

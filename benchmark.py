@@ -56,16 +56,12 @@ def main():
     with open(args.search_results) as f:
         sr = json.load(f)
 
-    # The metric classifier is deliberately kept separate from diffusion-model
-    # inference. num_workers=0 prevents Windows worker processes from causing
-    # host-memory pressure after a GPU-heavy search stage.
     train_loader, test_loader = get_dataloaders(batch_size=64, num_workers=0)
     diffusion = GaussianDiffusion(timesteps=1000, device=device)
 
     print(f"Training small classifier for proxy-FID features on {metric_device}...")
     classifier = train_classifier(train_loader, metric_device, epochs=args.classifier_epochs)
 
-    # Real reference set for Proxy-FID; match the requested generated sample count.
     real_x = collect_real_images(test_loader, args.n_fid_samples, device)
 
     models = {}

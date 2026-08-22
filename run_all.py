@@ -16,7 +16,6 @@ import sys
 
 
 PRESETS = {
-    # Suitable for a first end-to-end sanity check. Results are illustrative.
     "quick": {
         "teacher_steps": 2_000,
         "surrogate_steps": 200,
@@ -26,7 +25,6 @@ PRESETS = {
         "sample_steps": 100,
         "no_kd_steps": 500,
     },
-    # The README's intended reduced-scale experiment budget.
     "standard": {
         "teacher_steps": 12_000,
         "surrogate_steps": 800,
@@ -36,8 +34,6 @@ PRESETS = {
         "sample_steps": 250,
         "no_kd_steps": 2_000,
     },
-    # Higher-quality laptop run: more teacher learning, better surrogate fitting,
-    # a wider candidate search, and longer end-to-end adaptation.
     "quality": {
         "teacher_steps": 30_000,
         "surrogate_steps": 1_600,

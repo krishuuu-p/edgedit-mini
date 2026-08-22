@@ -9,7 +9,7 @@ CLASS_NAMES = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
 def get_dataloaders(data_dir="./data", batch_size=128, num_workers=2):
     tfm = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,)),  # -> [-1, 1]
+        transforms.Normalize((0.5,), (0.5,)),
     ])
     train_set = datasets.FashionMNIST(data_dir, train=True, download=True, transform=tfm)
     test_set = datasets.FashionMNIST(data_dir, train=False, download=True, transform=tfm)

@@ -10,9 +10,6 @@ import math
 import torch
 import torch.nn as nn
 
-# ---------------------------------------------------------------------------
-# Config for a single layer's block type
-# ---------------------------------------------------------------------------
 class BlockSpec:
     """Describes one transformer layer's variant.
 
@@ -40,9 +37,6 @@ def modulate(x, shift, scale):
     return x * (1 + scale.unsqueeze(1)) + shift.unsqueeze(1)
 
 
-# ---------------------------------------------------------------------------
-# Timestep + class conditioning
-# ---------------------------------------------------------------------------
 class TimestepEmbedder(nn.Module):
     def __init__(self, hidden_size, freq_dim=256):
         super().__init__()
@@ -70,7 +64,6 @@ class TimestepEmbedder(nn.Module):
 class LabelEmbedder(nn.Module):
     def __init__(self, num_classes, hidden_size, dropout_prob=0.1):
         super().__init__()
-        # +1 for the "unconditional" / class-dropout token (enables classifier-free guidance)
         self.embedding_table = nn.Embedding(num_classes + 1, hidden_size)
         self.num_classes = num_classes
         self.dropout_prob = dropout_prob
@@ -82,9 +75,6 @@ class LabelEmbedder(nn.Module):
         return self.embedding_table(labels)
 
 
-# ---------------------------------------------------------------------------
-# Transformer block (supports low-rank attention à la EdgeDiT "Att_512")
-# ---------------------------------------------------------------------------
 class DiTBlock(nn.Module):
     def __init__(self, spec: BlockSpec, cond_dim: int):
         super().__init__()
@@ -93,7 +83,6 @@ class DiTBlock(nn.Module):
         self.norm1 = nn.LayerNorm(dim, elementwise_affine=False)
         self.norm2 = nn.LayerNorm(dim, elementwise_affine=False)
 
-        # low-rank attention: In(n x d) -> Wq,Wk,Wv (d x attn_dim) -> SDPA -> Wout (attn_dim x d) -> Out(n x d)
         self.q_proj = nn.Linear(dim, attn_dim)
         self.k_proj = nn.Linear(dim, attn_dim)
         self.v_proj = nn.Linear(dim, attn_dim)
@@ -106,7 +95,6 @@ class DiTBlock(nn.Module):
         self.mlp = nn.Sequential(nn.Linear(dim, hidden), nn.GELU(), nn.Linear(hidden, dim))
 
         self.adaLN_modulation = nn.Sequential(nn.SiLU(), nn.Linear(cond_dim, 6 * dim))
-        # zero-init the final layer of adaLN so each block starts as identity (DiT "adaLN-Zero")
         nn.init.zeros_(self.adaLN_modulation[-1].weight)
         nn.init.zeros_(self.adaLN_modulation[-1].bias)
 
@@ -126,9 +114,6 @@ class DiTBlock(nn.Module):
         return x
 
 
-# ---------------------------------------------------------------------------
-# Full model
-# ---------------------------------------------------------------------------
 class FinalLayer(nn.Module):
     def __init__(self, dim, patch_size, out_channels, cond_dim):
         super().__init__()
@@ -180,8 +165,8 @@ class TinyDiT(nn.Module):
         return x.reshape(B, c, g * p, g * p)
 
     def forward(self, x, t, y, train=True, return_features=False):
-        x = self.patch_embed(x)                       # (B, dim, g, g)
-        x = x.flatten(2).transpose(1, 2) + self.pos_embed  # (B, N, dim)
+        x = self.patch_embed(x)
+        x = x.flatten(2).transpose(1, 2) + self.pos_embed
         c = self.t_embedder(t) + self.y_embedder(y, train)
         feats = []
         for blk in self.blocks:

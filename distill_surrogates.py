@@ -63,7 +63,6 @@ def main():
 
     surrogates = {"dim": dim, "heads": heads, "depth": depth, "blocks": {}}
 
-    # ---------------- Stage 1: block-removal (merge each consecutive pair) ----------------
     n_pairs = depth // 2
     for p in range(n_pairs):
         i = 2 * p
@@ -79,7 +78,6 @@ def main():
             "kind": "merge", "covers": [i, i + 1], "state_dict": student.state_dict()
         }
 
-    # ---------------- Stage 2: MLP-ratio / hidden-dim variants, per original layer ----------------
     for i in range(depth):
         for kind, mlp_r, hidr in [("mlp_mod", 2.0, False), ("hid_red", 4.0, True)]:
             spec = BlockSpec(kind, dim, dim // 2, 4.0, 2.0, heads)

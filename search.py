@@ -49,7 +49,7 @@ def assemble_from_layout(layout, teacher, surrogates, dim, heads, device):
             _, i1, v1, i2, v2 = entry
             for i, v in [(i1, v1), (i2, v2)]:
                 if v == "original":
-                    blocks.append(teacher.blocks[i])  # reuse teacher weights directly
+                    blocks.append(teacher.blocks[i])
                     names.append(f"orig_layer{i}")
                 else:
                     sd = surrogates["blocks"][f"{v}_layer{i}"]["state_dict"]
@@ -205,7 +205,6 @@ def main():
         print(f"[{len(results)}/{args.num_candidates}] depth={len(names)} params={params/1e6:.2f}M "
               f"gmacs={macs/1e9:.4f} latency={latency_ms:.3f}ms proxy_mse={quality:.5f}")
 
-    # teacher baseline point
     teacher_params = sum(p.numel() for p in teacher.parameters())
     teacher_macs = estimate_macs(teacher)
     teacher_latency_ms = measure_latency(teacher, device, args.latency_warmup, args.latency_iters, args.latency_repeats)
@@ -219,7 +218,6 @@ def main():
     for i, r in enumerate(results):
         r.setdefault("pareto_params", False)
         r.setdefault("pareto_latency", False)
-        # Backward-compatible field: the primary front is now latency-aware.
         r["pareto"] = r["pareto_latency"]
 
     latency_front = [results[i] for i in latency_front_idx]
@@ -231,7 +229,6 @@ def main():
                     "teacher_params": teacher_params, "teacher_gmacs": teacher_macs / 1e9,
                     "teacher_latency_ms": teacher_latency_ms, "candidates": results,
                     "selected_fastest": fastest, "selected_best_quality": best_quality,
-                    # Retained aliases keep fine-tuning and benchmarking interfaces stable.
                     "selected_smallest": fastest, "selected_largest": best_quality},
                    f, indent=2)
 
@@ -240,7 +237,6 @@ def main():
     save_pareto_plot(results, latency_front_idx, "latency_ms", "Per-step latency (ms, your GPU)",
                      "Architecture search: latency-aware Pareto front", os.path.join(args.out_dir, "pareto_front_latency.png"),
                      fastest, best_quality)
-    # This is the main report plot and remains at the historic filename.
     save_pareto_plot(results, latency_front_idx, "latency_ms", "Per-step latency (ms, your GPU)",
                      "Architecture search: latency-aware Pareto front", os.path.join(args.out_dir, "pareto_front.png"),
                      fastest, best_quality)

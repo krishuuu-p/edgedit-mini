@@ -88,7 +88,6 @@ def main():
             b["state_dict"][k] = b["state_dict"][k].to(device)
     diffusion = GaussianDiffusion(timesteps=1000, device=device)
 
-    # ---- Fig 3 analog: block-removal severity ----
     print("Figure: block-removal severity (merge 1 / 2 / 3 pairs)...")
     for k in range(1, depth // 2 + 1):
         m = assemble_merge_k(teacher, surrogates, dim, heads, device, k)
@@ -97,27 +96,21 @@ def main():
     sample_grid(teacher, diffusion, device, args.sample_steps,
                 os.path.join(args.out_dir, "fig_block_removal_teacher_ref.png"))
 
-    # ---- Fig 4 analog: MLP ratio ablation ----
     print("Figure: MLP-ratio ablation (all layers r=4 vs r=2)...")
     m_orig = assemble_uniform(teacher, surrogates, dim, heads, device, "original")
     m_mlp = assemble_uniform(teacher, surrogates, dim, heads, device, "mlp_mod")
     sample_grid(m_orig, diffusion, device, args.sample_steps, os.path.join(args.out_dir, "fig_mlp_ratio_r4_original.png"))
     sample_grid(m_mlp, diffusion, device, args.sample_steps, os.path.join(args.out_dir, "fig_mlp_ratio_r2_reduced.png"))
 
-    # ---- Fig 5 analog: hidden-dim ablation ----
     print("Figure: hidden-dim ablation (d=128 vs d=64)...")
     m_hid = assemble_uniform(teacher, surrogates, dim, heads, device, "hid_red")
     sample_grid(m_hid, diffusion, device, args.sample_steps, os.path.join(args.out_dir, "fig_hidden_dim_d64_reduced.png"))
-    # (fig_mlp_ratio_r4_original.png doubles as the d=128 reference here)
-
-    # ---- Fig 7 analog: with vs without feature-wise KD ----
     if not args.skip_no_kd_ablation:
         print("Figure: with/without FwKD ablation (this involves a short extra training run)...")
         with open(args.search_results) as f:
             sr = json.load(f)
         names = sr["selected_smallest"]["layout"]
 
-        # WITH FwKD: distilled-init + fine-tuned (reuse the already fine-tuned checkpoint)
         with_kd = assemble_from_names(names, teacher, surrogates, dim, heads, device)
         ckpt_path = os.path.join(args.finetuned_dir, "EdgeDiT-small", "ckpt.pt")
         if os.path.exists(ckpt_path):
@@ -125,7 +118,6 @@ def main():
         sample_grid(with_kd, diffusion, device, args.sample_steps,
                     os.path.join(args.out_dir, "fig_ablation_WITH_fwkd.png"))
 
-        # WITHOUT FwKD: same architecture, random init, trained from scratch for a short budget
         without_kd = assemble_from_names(names, teacher, surrogates, dim, heads, device)
         for p in without_kd.parameters():
             if p.dim() > 1:

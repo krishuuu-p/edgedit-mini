@@ -14,7 +14,7 @@ from PIL import Image
 
 CLASS_COLUMNS = (0, 5, 9)
 SOURCE_COLUMNS = 10
-PADDING = 2  # torchvision.utils.make_grid default padding
+PADDING = 2
 
 
 def latest_sample(directory):
@@ -67,7 +67,6 @@ def main():
         compact_grid(source_path, output_path)
         created.append(output_path)
 
-    # The Pareto plot is already report-sized and should remain uncropped.
     pareto = os.path.join(run_dir, "search", "pareto_front.png")
     if os.path.isfile(pareto):
         pareto_output = os.path.join(output_dir, "pareto_front.png")
