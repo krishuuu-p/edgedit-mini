@@ -41,7 +41,7 @@ def run_stage(name, command, expected_outputs, force):
     if complete and not force:
         print(f"\n[{name}] already complete; skipping (use --force to rerun).")
         return
-    print(f"\n{'=' * 16} {name} {'=' * 16}")
+    print(f"\nStarting stage {name}...")
     print(" ".join(command))
     subprocess.run(command, check=True)
 
