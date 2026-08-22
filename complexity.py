@@ -1,0 +1,35 @@
+"""Lightweight, dependency-free MAC estimates for TinyDiT models.
+
+The estimate counts matrix multiplications, convolutions, and attention products
+for a single denoising forward pass. Activations, normalisation, and elementwise
+operations are intentionally omitted, as is conventional for GMAC reporting.
+"""
+
+
+def estimate_macs(model):
+    """Return estimated multiply-accumulates for one image forward pass."""
+    dim = model.pos_embed.shape[-1]
+    tokens = model.pos_embed.shape[1]
+    patch = model.patch_size
+    channels = model.in_channels
+    grid = model.grid
+
+    # Patch projection convolution and timestep embedding MLP.
+    macs = grid * grid * dim * channels * patch * patch
+    macs += 256 * dim + dim * dim
+
+    for block in model.blocks:
+        attn_dim = block.attn_dim
+        mlp_hidden = block.mlp[0].out_features
+        # Q/K/V and output projections; QK^T and attention-value products.
+        macs += 3 * tokens * dim * attn_dim
+        macs += 2 * tokens * tokens * attn_dim
+        macs += tokens * attn_dim * dim
+        # Two feed-forward projections and AdaLN modulation.
+        macs += 2 * tokens * dim * mlp_hidden
+        macs += dim * (6 * dim)
+
+    # Final AdaLN modulation and output projection.
+    macs += dim * (2 * dim)
+    macs += tokens * dim * (patch * patch * channels)
+    return int(macs)
