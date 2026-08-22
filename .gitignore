@@ -1,21 +1,17 @@
-# Python
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
 venv/
 
-# Dataset and generated experiments
 data/
 runs/
 
-# PyTorch checkpoints and generated media
 *.pt
 *.pth
 *.ckpt
 *.png
 
-# LaTeX build artifacts
 *.aux
 *.bbl
 *.blg
@@ -29,11 +25,9 @@ runs/
 *.synctex.gz
 *.toc
 
-# Editor and OS files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Report files
 *.tex
