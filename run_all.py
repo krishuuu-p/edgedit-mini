@@ -1,13 +1,3 @@
-"""Run the complete EdgeDiT-Mini reproduction with one command.
-
-Examples:
-    python run_all.py --preset quick --run_number 1
-    python run_all.py --preset standard --run_number 1
-    python run_all.py --preset standard --run_number 2 --device cuda
-
-The runner is resumable: by default, a stage with its expected output already
-present is skipped.  Use --force to run every stage again.
-"""
 import argparse
 import json
 import os
@@ -57,7 +47,6 @@ def run_stage(name, command, expected_outputs, force):
 
 
 def next_run_number(preset):
-    """Return one greater than the largest existing run<number> directory."""
     preset_dir = os.path.join("./runs", preset)
     if not os.path.isdir(preset_dir):
         return 1

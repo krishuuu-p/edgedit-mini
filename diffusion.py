@@ -3,7 +3,6 @@ import torch.nn as nn
 
 
 class GaussianDiffusion:
-    """Minimal DDPM (Ho et al.) - linear beta schedule."""
     def __init__(self, timesteps=1000, device="cpu"):
         self.T = timesteps
         betas = torch.linspace(1e-4, 0.02, timesteps, device=device)
@@ -30,13 +29,6 @@ class GaussianDiffusion:
 
     @torch.no_grad()
     def sample(self, model, shape, y, device, cfg_scale=1.0, num_classes=10, steps=None):
-        """Respaced DDIM sampling over the full training noise schedule.
-
-        ``steps`` controls how many denoising evaluations are used, while always
-        starting at timestep T-1.  This is essential for fast previews: starting
-        from random noise at timestep 99 when the model was trained up to 999
-        produces invalid, noise-like samples.
-        """
         steps = steps or self.T
         if not 1 <= steps <= self.T:
             raise ValueError(f"steps must be in [1, {self.T}], got {steps}")
@@ -66,8 +58,6 @@ class GaussianDiffusion:
 
 @torch.no_grad()
 def get_teacher_hidden_states(teacher, x, t, y, train=False):
-    """Returns hs[0..L] where hs[i] is the hidden state entering block i
-    (hs[L] is the state after the last block), plus the conditioning vector c."""
     h = teacher.patch_embed(x).flatten(2).transpose(1, 2) + teacher.pos_embed
     c = teacher.t_embedder(t) + teacher.y_embedder(y, train)
     hs = [h]
@@ -78,9 +68,6 @@ def get_teacher_hidden_states(teacher, x, t, y, train=False):
 
 
 class AssembledDiT(nn.Module):
-    """Wraps a chosen list of (already trained) DiTBlock modules with the
-    teacher's shared patch/pos embed, conditioning embedders, and final layer.
-    This IS the "configuration vector" a = (b_1, ..., b_L) from EdgeDiT Sec 3.3."""
     def __init__(self, teacher, block_list, share_head=True):
         super().__init__()
         self.patch_embed = teacher.patch_embed

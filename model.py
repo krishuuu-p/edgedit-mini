@@ -1,20 +1,8 @@
-"""
-Tiny DiT for FashionMNIST, built so each transformer layer can independently be:
-  - "original":  full attention dim (d), full MLP ratio (r_full)
-  - "mlp_mod":   full attention dim (d), reduced MLP ratio (r_reduced)
-  - "hid_red":   reduced attention dim (d1 < d), full MLP ratio (r_full)
-
-This mirrors EdgeDiT Figure 2 exactly, just at toy scale (d ~ 128 instead of 1152).
-"""
 import math
 import torch
 import torch.nn as nn
 
 class BlockSpec:
-    """Describes one transformer layer's variant.
-
-    kind: 'original' | 'mlp_mod' | 'hid_red'
-    """
     def __init__(self, kind: str, dim: int, dim_low: int, mlp_ratio_full: float, mlp_ratio_low: float, num_heads: int):
         assert kind in ("original", "mlp_mod", "hid_red")
         self.kind = kind
@@ -130,10 +118,6 @@ class FinalLayer(nn.Module):
 
 
 class TinyDiT(nn.Module):
-    """
-    img_size: assumed square, divisible by patch_size
-    block_specs: list of BlockSpec, one per layer (defines the architecture "configuration vector" a)
-    """
     def __init__(self, img_size=28, patch_size=4, in_channels=1, dim=128, num_heads=4,
                  num_classes=10, block_specs=None):
         super().__init__()

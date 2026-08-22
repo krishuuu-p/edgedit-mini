@@ -9,7 +9,6 @@ from data import get_dataloaders
 
 
 def assemble_uniform(teacher, surrogates, dim, heads, device, variant):
-    """All `depth` layers using the SAME variant ('original' | 'mlp_mod' | 'hid_red')."""
     depth = len(teacher.blocks)
     blocks = []
     for i in range(depth):
@@ -22,7 +21,6 @@ def assemble_uniform(teacher, surrogates, dim, heads, device, variant):
 
 
 def assemble_merge_k(teacher, surrogates, dim, heads, device, k_pairs):
-    """Merge the first k_pairs consecutive pairs, leave the rest as original."""
     depth = len(teacher.blocks)
     n_pairs = depth // 2
     blocks = []

@@ -1,9 +1,3 @@
-"""Create compact, report-ready three-sample grids from a completed run.
-
-The source 10-sample grids are preserved.  This script selects class columns
-0, 5, and 9 (T-shirt/top, Sandal, Ankle boot) and writes compact copies to
-<run_dir>/report_figures.  It performs no model inference or training.
-"""
 import argparse
 import glob
 import os
@@ -25,7 +19,6 @@ def latest_sample(directory):
 
 
 def compact_grid(source_path, output_path):
-    """Select three tiles from a one-row torchvision grid."""
     image = Image.open(source_path).convert("RGB")
     tile_width = (image.width - PADDING * (SOURCE_COLUMNS + 1)) // SOURCE_COLUMNS
     tile_height = image.height - 2 * PADDING

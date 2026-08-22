@@ -21,6 +21,5 @@ def get_dataloaders(data_dir="./data", batch_size=128, num_workers=2):
 
 
 def get_calibration_batch(loader, device):
-    """One real batch, used repeatedly as calibration data for feature-wise KD."""
     x, y = next(iter(loader))
     return x.to(device), y.to(device)

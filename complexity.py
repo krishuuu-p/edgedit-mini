@@ -1,13 +1,4 @@
-"""Lightweight, dependency-free MAC estimates for TinyDiT models.
-
-The estimate counts matrix multiplications, convolutions, and attention products
-for a single denoising forward pass. Activations, normalisation, and elementwise
-operations are intentionally omitted, as is conventional for GMAC reporting.
-"""
-
-
 def estimate_macs(model):
-    """Return estimated multiply-accumulates for one image forward pass."""
     dim = model.pos_embed.shape[-1]
     tokens = model.pos_embed.shape[1]
     patch = model.patch_size

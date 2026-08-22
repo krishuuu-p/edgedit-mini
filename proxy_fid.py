@@ -1,14 +1,3 @@
-"""
-Proxy-FID for FashionMNIST.
-
-The paper computes FID-50K using an ImageNet-pretrained Inception-v3. That network's
-features are meaningless for 28x28 grayscale clothing images (domain mismatch), and
-downloading/running Inception is itself heavy. Instead we train a small CNN classifier
-on FashionMNIST and use its penultimate-layer features to compute the same Frechet
-distance formula. This is a standard substitution for small-scale/toy-domain diffusion
-reproductions and should be reported explicitly as "Proxy-FID (FashionMNIST-CNN
-features)", not compared numerically to the paper's ImageNet FID values.
-"""
 import torch
 import torch.nn as nn
 import numpy as np
@@ -54,7 +43,6 @@ def train_classifier(train_loader, device, epochs=3, lr=1e-3):
 
 @torch.no_grad()
 def extract_features(model, images, device, batch_size=128):
-    """images: (N, 1, 28, 28) tensor in [-1, 1]."""
     feats = []
     for i in range(0, images.shape[0], batch_size):
         batch = images[i:i+batch_size].to(device)

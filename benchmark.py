@@ -16,7 +16,6 @@ def generate_samples(model, diffusion, n, device, sample_steps):
 
 
 def collect_real_images(loader, n, device):
-    """Collect exactly n test images instead of being limited to one loader batch."""
     batches = []
     total = 0
     for images, _ in loader:

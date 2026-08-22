@@ -23,8 +23,6 @@ def build_block(kind, dim, heads, state_dict=None):
 
 
 def sample_config(n_pairs):
-    """Returns a list of per-position choices:
-    for each pair, either ('merge', p) or [('keep', i, variant), ('keep', i+1, variant)]"""
     layout = []
     for p in range(n_pairs):
         if random.random() < 0.5:
@@ -61,11 +59,6 @@ def assemble_from_layout(layout, teacher, surrogates, dim, heads, device):
 
 @torch.no_grad()
 def proxy_quality(model, hs_target, calib_x, calib_t, calib_y, train=False):
-    """Cheap quality proxy: MSE between candidate's pre-final-layer hidden state
-    and the teacher's, on the same calibration batch. Avoids running full diffusion
-    sampling + FID for every candidate during search (mirrors the paper's rationale
-    for relaxing the search objective since true FID is too costly to evaluate
-    for every candidate)."""
     h = model.patch_embed(calib_x).flatten(2).transpose(1, 2) + model.pos_embed
     c = model.t_embedder(calib_t) + model.y_embedder(calib_y, train)
     for blk in model.blocks:
@@ -74,8 +67,6 @@ def proxy_quality(model, hs_target, calib_x, calib_t, calib_y, train=False):
 
 
 def assemble_from_names(names, teacher, surrogates, dim, heads, device):
-    """Rebuild an AssembledDiT from a saved list of block names (as stored in
-    search_results.json), e.g. ['merge_pair0', 'orig_layer2', 'mlp_mod_layer3', ...]."""
     blocks = []
     for name in names:
         if name.startswith("orig_layer"):
@@ -90,7 +81,6 @@ def assemble_from_names(names, teacher, surrogates, dim, heads, device):
 
 
 def pareto_front(points):
-    """points: list of (params, quality) - lower is better for both. Returns indices on the front."""
     idx = sorted(range(len(points)), key=lambda i: points[i][0])
     front, best_q = [], float("inf")
     for i in idx:
@@ -102,11 +92,6 @@ def pareto_front(points):
 
 @torch.no_grad()
 def measure_latency(model, device, warmup=20, iterations=100, repeats=3):
-    """Median single-image denoising-step latency in milliseconds.
-
-    CUDA synchronization ensures asynchronous GPU work is included in the
-    measurement.  The median of repeated measurements reduces timing noise.
-    """
     model.eval()
     x = torch.randn(1, 1, 28, 28, device=device)
     t = torch.zeros(1, dtype=torch.long, device=device)
