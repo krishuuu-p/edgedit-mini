@@ -34,3 +34,6 @@ runs/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Report files
+*.tex
